@@ -101,18 +101,23 @@
         return;
       }
 
+      const postData = {
+        sex: gender,
+        birth: birth.replaceAll("/", "-"),
+        hour: parseInt(hour),
+        calendar: "solar"
+      };
+
+      console.log("送出至命盤 API：", postData);
+
       fetch("https://www.dearmoney.idv.tw/ziweiapi", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sex: gender,
-          birth: birth.replaceAll("/", "-"),
-          hour: parseInt(hour),
-          calendar: "solar"
-        })
+        body: JSON.stringify(postData)
       })
       .then(res => res.json())
       .then(result => {
+        console.log("命盤 API 回傳：", result);
         const star = result.ming_gong_main_star;
         if (!star) {
           alert("無法取得主星");
@@ -121,6 +126,7 @@
         fetch("https://script.google.com/macros/s/AKfycbwiZpI9cH_YQIPXpu733EaVnj69LQUM_aSZTWB7f2sdudnocQxD5pNcozd5wHkojYA_LQ/exec?star=" + encodeURIComponent(star))
           .then(res => res.json())
           .then(data => {
+            console.log("香氣卡資料：", data);
             document.getElementById('result').innerHTML = `
               <h3>命宮主星：${star}</h3>
               <p><strong>香氣組合：</strong>${data.scent}</p>
