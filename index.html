@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>紫微命盤 × 香氣推薦</title>
+  <title>MBTI × 香氣推薦</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC&display=swap" rel="stylesheet">
   <style>
     body {
@@ -25,7 +25,7 @@
       width: 100%;
       text-align: center;
     }
-    select, input[type="date"] {
+    select {
       width: 100%;
       padding: 10px;
       margin-top: 10px;
@@ -55,108 +55,54 @@
       border-radius: 12px;
       margin-top: 20px;
     }
-    .debug {
-      margin-top: 20px;
-      background: #f5f5f5;
-      padding: 10px;
-      font-size: 12px;
-      white-space: pre-wrap;
-      border-radius: 8px;
-      text-align: left;
-    }
   </style>
 </head>
 <body>
   <div class="card">
-    <h2>紫微命盤 × 香氣推薦</h2>
-    <label for="birth">出生日期：</label>
-    <input type="date" id="birth" required>
-
-    <label for="hour">出生時辰：</label>
-    <select id="hour">
-      <option value="23">子 (23-1)</option>
-      <option value="1">丑 (1-3)</option>
-      <option value="3">寅 (3-5)</option>
-      <option value="5">卯 (5-7)</option>
-      <option value="7">辰 (7-9)</option>
-      <option value="9">巳 (9-11)</option>
-      <option value="11">午 (11-13)</option>
-      <option value="13">未 (13-15)</option>
-      <option value="15">申 (15-17)</option>
-      <option value="17">酉 (17-19)</option>
-      <option value="19">戌 (19-21)</option>
-      <option value="21">亥 (21-23)</option>
+    <h2>MBTI × 香氣推薦</h2>
+    <label for="mbti">請選擇你的 MBTI 類型：</label>
+    <select id="mbti">
+      <option value="INFP">INFP</option>
+      <option value="INFJ">INFJ</option>
+      <option value="INTP">INTP</option>
+      <option value="INTJ">INTJ</option>
+      <option value="ISFP">ISFP</option>
+      <option value="ISFJ">ISFJ</option>
+      <option value="ISTP">ISTP</option>
+      <option value="ISTJ">ISTJ</option>
+      <option value="ENFP">ENFP</option>
+      <option value="ENFJ">ENFJ</option>
+      <option value="ENTP">ENTP</option>
+      <option value="ENTJ">ENTJ</option>
+      <option value="ESFP">ESFP</option>
+      <option value="ESFJ">ESFJ</option>
+      <option value="ESTP">ESTP</option>
+      <option value="ESTJ">ESTJ</option>
     </select>
 
-    <label for="gender">性別：</label>
-    <select id="gender">
-      <option value="male">男性</option>
-      <option value="female">女性</option>
-    </select>
-
-    <button onclick="generateChart()">產生命盤主星並抽香氣卡</button>
+    <button onclick="getMBTIRecommendation()">抽香氣推薦卡</button>
 
     <div class="result" id="result"></div>
-    <div class="debug" id="debug"></div>
   </div>
 
   <script>
-    function generateChart() {
-      const birth = document.getElementById('birth').value;
-      const hour = document.getElementById('hour').value;
-      const gender = document.getElementById('gender').value;
-      const debug = document.getElementById('debug');
-      debug.innerText = "";
-
-      if (!birth) {
-        alert("請選擇出生日期");
-        return;
-      }
-
-      const today = new Date().toISOString().split("T")[0];
-      if (birth > today) {
-        alert("出生日期不可為未來");
-        return;
-      }
-
-      const postData = {
-        gender: gender,
-        birth: birth,
-        hour: parseInt(hour)
-      };
-
-      debug.innerText += `送出玄機命盤 API：\n${JSON.stringify(postData, null, 2)}\n`;
-
-      fetch("https://api.zhyuan.cc/ziwei", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(postData)
-      })
-      .then(async res => {
-        const result = await res.json();
-        debug.innerText += `命盤回傳：\n${JSON.stringify(result, null, 2)}\n`;
-        const star = result.data?.命宮主星;
-        if (!star) {
-          alert("命盤產生失敗，請確認輸入是否正確");
-          return;
-        }
-        fetch("https://script.google.com/macros/s/AKfycbwiZpI9cH_YQIPXpu733EaVnj69LQUM_aSZTWB7f2sdudnocQxD5pNcozd5wHkojYA_LQ/exec?star=" + encodeURIComponent(star))
-          .then(res => res.json())
-          .then(data => {
-            debug.innerText += `香氣卡資料：\n${JSON.stringify(data, null, 2)}\n`;
-            document.getElementById('result').innerHTML = `
-              <h3>命宮主星：${star}</h3>
-              <p><strong>香氣組合：</strong>${data.scent}</p>
-              <p><strong>語錄：</strong>${data.quote}</p>
-              <p><strong>使用建議：</strong>${data.usage}</p>
-              <img src="${data.img}" alt="香氣卡圖像">
-            `;
-          });
-      })
-      .catch(err => {
-        debug.innerText += `錯誤：\n${err}\n`;
-        alert("命盤產生失敗，請稍後再試。");
-      });
+    function getMBTIRecommendation() {
+      const mbti = document.getElementById("mbti").value;
+      fetch("https://script.google.com/macros/s/AKfycbwiZpI9cH_YQIPXpu733EaVnj69LQUM_aSZTWB7f2sdudnocQxD5pNcozd5wHkojYA_LQ/exec?star=" + mbti)
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById("result").innerHTML = `
+            <h3>MBTI 類型：${mbti}</h3>
+            <p><strong>香氣組合：</strong>${data.scent}</p>
+            <p><strong>語錄：</strong>${data.quote}</p>
+            <p><strong>使用建議：</strong>${data.usage}</p>
+            <img src="${data.img}" alt="香氣卡圖像">
+          `;
+        })
+        .catch(error => {
+          alert("資料讀取失敗，請稍後再試。");
+          console.error(error);
+        });
     }
   </script>
 </body>
