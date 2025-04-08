@@ -55,6 +55,15 @@
       border-radius: 12px;
       margin-top: 20px;
     }
+    .debug {
+      margin-top: 20px;
+      background: #f5f5f5;
+      padding: 10px;
+      font-size: 12px;
+      white-space: pre-wrap;
+      border-radius: 8px;
+      text-align: left;
+    }
   </style>
 </head>
 <body>
@@ -88,6 +97,7 @@
     <button onclick="generateChart()">產生命盤主星並抽香氣卡</button>
 
     <div class="result" id="result"></div>
+    <div class="debug" id="debug"></div>
   </div>
 
   <script>
@@ -95,6 +105,8 @@
       const birth = document.getElementById('birth').value;
       const hour = document.getElementById('hour').value;
       const gender = document.getElementById('gender').value;
+      const debug = document.getElementById('debug');
+      debug.innerText = "";
 
       if (!birth) {
         alert("請選擇出生日期");
@@ -108,7 +120,7 @@
         calendar: "solar"
       };
 
-      console.log("送出至命盤 API：", postData);
+      debug.innerText += `送出命盤 API：\n${JSON.stringify(postData, null, 2)}\n`;
 
       fetch("https://www.dearmoney.idv.tw/ziweiapi", {
         method: "POST",
@@ -117,7 +129,7 @@
       })
       .then(res => res.json())
       .then(result => {
-        console.log("命盤 API 回傳：", result);
+        debug.innerText += `命盤回傳：\n${JSON.stringify(result, null, 2)}\n`;
         const star = result.ming_gong_main_star;
         if (!star) {
           alert("無法取得主星");
@@ -126,7 +138,7 @@
         fetch("https://script.google.com/macros/s/AKfycbwiZpI9cH_YQIPXpu733EaVnj69LQUM_aSZTWB7f2sdudnocQxD5pNcozd5wHkojYA_LQ/exec?star=" + encodeURIComponent(star))
           .then(res => res.json())
           .then(data => {
-            console.log("香氣卡資料：", data);
+            debug.innerText += `香氣卡資料：\n${JSON.stringify(data, null, 2)}\n`;
             document.getElementById('result').innerHTML = `
               <h3>命宮主星：${star}</h3>
               <p><strong>香氣組合：</strong>${data.scent}</p>
@@ -137,7 +149,7 @@
           });
       })
       .catch(err => {
-        console.error("API 錯誤：", err);
+        debug.innerText += `錯誤：\n${err}\n`;
         alert("命盤產生失敗，請稍後再試。");
       });
     }
