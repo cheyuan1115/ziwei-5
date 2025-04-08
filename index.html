@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MBTI × 香氣推薦</title>
+  <title>香氣推薦卡</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC&display=swap" rel="stylesheet">
   <style>
     body {
@@ -11,9 +11,9 @@
       background: linear-gradient(to bottom right, #e8f5e9, #ffffff);
       color: #2e4e2e;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
-      height: 100vh;
+      padding: 40px;
       margin: 0;
     }
     .card {
@@ -21,17 +21,10 @@
       padding: 40px;
       border-radius: 16px;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-      max-width: 400px;
+      max-width: 500px;
       width: 100%;
       text-align: center;
-    }
-    select {
-      width: 100%;
-      padding: 10px;
-      margin-top: 10px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 16px;
+      margin-bottom: 40px;
     }
     button {
       background-color: #4caf50;
@@ -55,54 +48,96 @@
       border-radius: 12px;
       margin-top: 20px;
     }
+    select, input[type="date"] {
+      padding: 8px;
+      margin: 5px;
+      width: 80%;
+      font-size: 16px;
+    }
   </style>
 </head>
 <body>
   <div class="card">
-    <h2>MBTI × 香氣推薦</h2>
-    <label for="mbti">請選擇你的 MBTI 類型：</label>
-    <select id="mbti">
-      <option value="INFP">INFP</option>
-      <option value="INFJ">INFJ</option>
-      <option value="INTP">INTP</option>
-      <option value="INTJ">INTJ</option>
-      <option value="ISFP">ISFP</option>
-      <option value="ISFJ">ISFJ</option>
-      <option value="ISTP">ISTP</option>
-      <option value="ISTJ">ISTJ</option>
-      <option value="ENFP">ENFP</option>
-      <option value="ENFJ">ENFJ</option>
-      <option value="ENTP">ENTP</option>
-      <option value="ENTJ">ENTJ</option>
-      <option value="ESFP">ESFP</option>
-      <option value="ESFJ">ESFJ</option>
-      <option value="ESTP">ESTP</option>
-      <option value="ESTJ">ESTJ</option>
-    </select>
+    <h2>香氣推薦卡系統</h2>
 
-    <button onclick="getMBTIRecommendation()">抽香氣推薦卡</button>
+    <h3>1. 星座推薦</h3>
+    <label>請輸入生日：</label><br>
+    <input type="date" id="birthDate"><br>
+    <button onclick="recommendByZodiac()">依星座推薦香氛</button>
+
+    <h3>2. 塔羅牌推薦</h3>
+    <button onclick="drawCard()">抽塔羅香氣卡</button>
+
+    <h3>3. 今日心情推薦</h3>
+    <select id="mood">
+      <option value="放鬆">放鬆</option>
+      <option value="振奮">振奮</option>
+      <option value="療癒">療癒</option>
+      <option value="集中">集中</option>
+      <option value="浪漫">浪漫</option>
+    </select>
+    <button onclick="recommendByMood()">依心情推薦香氛</button>
 
     <div class="result" id="result"></div>
   </div>
 
   <script>
-    function getMBTIRecommendation() {
-      const mbti = document.getElementById("mbti").value;
-      fetch("https://script.google.com/macros/s/AKfycbwiZpI9cH_YQIPXpu733EaVnj69LQUM_aSZTWB7f2sdudnocQxD5pNcozd5wHkojYA_LQ/exec?star=" + mbti)
-        .then(res => res.json())
-        .then(data => {
-          document.getElementById("result").innerHTML = `
-            <h3>MBTI 類型：${mbti}</h3>
-            <p><strong>香氣組合：</strong>${data.scent}</p>
-            <p><strong>語錄：</strong>${data.quote}</p>
-            <p><strong>使用建議：</strong>${data.usage}</p>
-            <img src="${data.img}" alt="香氣卡圖像">
-          `;
-        })
-        .catch(error => {
-          alert("資料讀取失敗，請稍後再試。");
-          console.error(error);
-        });
+    let cards = [];
+    fetch("https://script.google.com/macros/s/AKfycbxArz_thD9bPGnArrTaAqD8XKPma5euRCsgdbNc5Z_q06GxVfT707h5-RTTNctu63G18Q/exec")
+      .then(res => res.json())
+      .then(data => {
+        cards = data;
+      })
+      .catch(error => {
+        alert("載入香氣資料失敗。");
+        console.error(error);
+      });
+
+    function getZodiac(month, day) {
+      const zodiac = [
+        [1, 20, "摩羯座"], [2, 19, "水瓶座"], [3, 21, "雙魚座"], [4, 20, "牡羊座"],
+        [5, 21, "金牛座"], [6, 21, "雙子座"], [7, 23, "巨蟹座"], [8, 23, "獅子座"],
+        [9, 23, "處女座"], [10, 23, "天秤座"], [11, 23, "天蠍座"], [12, 22, "射手座"], [12, 32, "摩羯座"]
+      ];
+      for (let i = 0; i < zodiac.length; i++) {
+        if (month === zodiac[i][0] && day < zodiac[i][1]) {
+          return zodiac[i - 1][2];
+        }
+      }
+      return zodiac[month - 1][2];
+    }
+
+    function recommendByZodiac() {
+      const date = document.getElementById("birthDate").value;
+      if (!date) return alert("請輸入生日");
+      const d = new Date(date);
+      const zodiac = getZodiac(d.getMonth() + 1, d.getDate());
+      const card = cards.find(c => c.star.includes(zodiac));
+      if (!card) return alert("找不到對應星座香氣卡");
+      showCard(card);
+    }
+
+    function drawCard() {
+      if (!cards.length) return alert("資料未載入完成");
+      const card = cards[Math.floor(Math.random() * cards.length)];
+      showCard(card);
+    }
+
+    function recommendByMood() {
+      const mood = document.getElementById("mood").value;
+      const card = cards.find(c => c.quote.includes(mood) || c.usage.includes(mood));
+      if (!card) return alert("找不到對應心情香氣卡");
+      showCard(card);
+    }
+
+    function showCard(card) {
+      document.getElementById("result").innerHTML = `
+        <h3>${card.star}</h3>
+        <p><strong>香氣組合：</strong>${card.scent}</p>
+        <p><strong>語錄：</strong>${card.quote}</p>
+        <p><strong>使用建議：</strong>${card.usage}</p>
+        <img src="${card.img}" alt="香氣卡圖像">
+      `;
     }
   </script>
 </body>
