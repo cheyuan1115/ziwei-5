@@ -87,8 +87,14 @@
     let tarotCards = [];
 
     Promise.all([
-      fetch(`${scriptBase}?sheet=Zodiac`).then(res => res.json()).then(data => { zodiacCards = data }),
-      fetch(`${scriptBase}?sheet=Taro`).then(res => res.json()).then(data => { tarotCards = data })
+      fetch(`${scriptBase}?sheet=Zodiac`).then(res => res.json()).then(data => {
+        zodiacCards = data;
+        console.log("Zodiac 資料：", zodiacCards);
+      }),
+      fetch(`${scriptBase}?sheet=Taro`).then(res => res.json()).then(data => {
+        tarotCards = data;
+        console.log("Tarot 資料：", tarotCards);
+      })
     ]).then(() => {
       console.log("✅ 資料載入完成");
     }).catch(error => {
@@ -121,8 +127,12 @@
     }
 
     function drawCard() {
-      if (!tarotCards.length) return alert("塔羅資料未載入完成");
+      if (!tarotCards.length) {
+        alert("塔羅資料未載入完成");
+        return;
+      }
       const card = tarotCards[Math.floor(Math.random() * tarotCards.length)];
+      console.log("抽出的塔羅卡：", card);
       showCard(card);
     }
 
