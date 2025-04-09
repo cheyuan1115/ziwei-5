@@ -82,16 +82,19 @@
   </div>
 
   <script>
-    let cards = [];
-    fetch("https://script.google.com/macros/s/AKfycbxArz_thD9bPGnArrTaAqD8XKPma5euRCsgdbNc5Z_q06GxVfT707h5-RTTNctu63G18Q/exec")
+    const scriptBase = "https://script.google.com/macros/s/你的ScriptID/exec";
+    let zodiacCards = [];
+    let tarotCards = [];
+
+    // 載入 Zodiac 資料
+    fetch(`${scriptBase}?sheet=Zodiac`)
       .then(res => res.json())
-      .then(data => {
-        cards = data;
-      })
-      .catch(error => {
-        alert("載入香氣資料失敗。");
-        console.error(error);
-      });
+      .then(data => zodiacCards = data);
+
+    // 載入 Tarot 資料
+    fetch(`${scriptBase}?sheet=Taro`)
+      .then(res => res.json())
+      .then(data => tarotCards = data);
 
     function getZodiac(month, day) {
       const zodiac = [
@@ -112,20 +115,20 @@
       if (!date) return alert("請輸入生日");
       const d = new Date(date);
       const zodiac = getZodiac(d.getMonth() + 1, d.getDate());
-      const card = cards.find(c => c.star.includes(zodiac));
+      const card = zodiacCards.find(c => c.star.includes(zodiac));
       if (!card) return alert("找不到對應星座香氣卡");
       showCard(card);
     }
 
     function drawCard() {
-      if (!cards.length) return alert("資料未載入完成");
-      const card = cards[Math.floor(Math.random() * cards.length)];
+      if (!tarotCards.length) return alert("資料未載入完成");
+      const card = tarotCards[Math.floor(Math.random() * tarotCards.length)];
       showCard(card);
     }
 
     function recommendByMood() {
       const mood = document.getElementById("mood").value;
-      const card = cards.find(c => c.quote.includes(mood) || c.usage.includes(mood));
+      const card = tarotCards.find(c => c.quote.includes(mood) || c.usage.includes(mood));
       if (!card) return alert("找不到對應心情香氣卡");
       showCard(card);
     }
