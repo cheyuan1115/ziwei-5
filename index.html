@@ -86,15 +86,15 @@
     let zodiacCards = [];
     let tarotCards = [];
 
-    // 載入 Zodiac 資料
-    fetch(`${scriptBase}?sheet=Zodiac`)
-      .then(res => res.json())
-      .then(data => zodiacCards = data);
-
-    // 載入 Tarot 資料
-    fetch(`${scriptBase}?sheet=Taro`)
-      .then(res => res.json())
-      .then(data => tarotCards = data);
+    Promise.all([
+      fetch(`${scriptBase}?sheet=Zodiac`).then(res => res.json()).then(data => { zodiacCards = data }),
+      fetch(`${scriptBase}?sheet=Taro`).then(res => res.json()).then(data => { tarotCards = data })
+    ]).then(() => {
+      console.log("✅ 資料載入完成");
+    }).catch(error => {
+      alert("❌ 資料載入失敗，請檢查 API");
+      console.error("資料錯誤：", error);
+    });
 
     function getZodiac(month, day) {
       const zodiac = [
@@ -115,20 +115,22 @@
       if (!date) return alert("請輸入生日");
       const d = new Date(date);
       const zodiac = getZodiac(d.getMonth() + 1, d.getDate());
-      const card = zodiacCards.find(c => c.star.includes(zodiac));
+      const card = zodiacCards.find(c => c.star && c.star.includes(zodiac));
       if (!card) return alert("找不到對應星座香氣卡");
       showCard(card);
     }
 
     function drawCard() {
-      if (!tarotCards.length) return alert("資料未載入完成");
+      if (!tarotCards.length) return alert("塔羅資料未載入完成");
       const card = tarotCards[Math.floor(Math.random() * tarotCards.length)];
       showCard(card);
     }
 
     function recommendByMood() {
       const mood = document.getElementById("mood").value;
-      const card = tarotCards.find(c => c.quote.includes(mood) || c.usage.includes(mood));
+      const card = tarotCards.find(c =>
+        (c.quote && c.quote.includes(mood)) || (c.usage && c.usage.includes(mood))
+      );
       if (!card) return alert("找不到對應心情香氣卡");
       showCard(card);
     }
@@ -137,4 +139,11 @@
       document.getElementById("result").innerHTML = `
         <h3>${card.star}</h3>
         <p><strong>香氣組合：</strong>${card.scent}</p>
-        <p><strong>語錄：</strong>${card.quot
+        <p><strong>語錄：</strong>${card.quote}</p>
+        <p><strong>使用建議：</strong>${card.usage}</p>
+        <img src="${card.img}" alt="香氣卡圖像">
+      `;
+    }
+  </script>
+</body>
+</html>
