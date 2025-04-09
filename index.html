@@ -123,7 +123,10 @@
       const zodiac = getZodiac(d.getMonth() + 1, d.getDate());
       const card = zodiacCards.find(c => c.star && c.star.includes(zodiac));
       if (!card) return alert("找不到對應星座香氣卡");
-      showCard(card);
+      document.getElementById("result").innerHTML = `
+        <h3>${card.star}</h3>
+        <p><strong>星座香氛語錄：</strong>${card.translation || '無翻譯資料'}</p>
+      `;
     }
 
     function drawCard() {
@@ -147,7 +150,7 @@
 
     function showCard(card) {
       document.getElementById("result").innerHTML = `
-        <h3>${card.star}</h3>
+        <h3>${card.star || card.tarot}</h3>
         <p><strong>香氣組合：</strong>${card.scent}</p>
         <p><strong>語錄：</strong>${card.quote}</p>
         <p><strong>使用建議：</strong>${card.usage}</p>
